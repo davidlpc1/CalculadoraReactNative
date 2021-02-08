@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { Entypo } from "@expo/vector-icons";
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import buttons from './buttons';
@@ -8,13 +8,51 @@ export default function App() {
 
   const [ currentNumber,setCurrentNumber] = useState("");
   const [ lastNumber,setLastNumber] = useState("")
+
+  useEffect(() => {
+    if(currentNumber === "NaN") setCurrentNumber(0)
+  },[ currentNumber ])
+
+  function calculator(){
+    const splitNumbers = currentNumber.split(' ')
+    const [ firstNumberStr,operator,secondNumberStr ] = splitNumbers
+    const firstNumber = parseFloat(firstNumberStr)
+    const secondNumber = parseFloat(secondNumberStr)
+    
+    switch(operator){
+      case '+':
+        setCurrentNumber((firstNumber + secondNumber).toString())
+        return;
+      case '-':
+        setCurrentNumber((firstNumber - secondNumber).toString())
+        return;
+      case '*':
+        setCurrentNumber((firstNumber * secondNumber).toString())
+        return;
+      case '/':
+        setCurrentNumber((firstNumber / secondNumber).toString())
+        return;
+    }
+  }
+
   const actionsOfDiferentButtons = {
-    DEL:() => {},
+    DEL:() => {
+      setCurrentNumber(currentNumber.substring(0, (currentNumber.length - 1)))
+      return;
+    },
     AC:() => {
       setCurrentNumber('')
       setLastNumber('')
       return
     },
+    '=':() => {
+      setLastNumber(currentNumber + ' = ')
+      calculator();
+      return;
+    },
+    '+/-':() => {
+      return;
+    }
   }
 
   const getColorOfButton = (button) => {
@@ -72,8 +110,8 @@ export default function App() {
       borderWidth: 1,
       justifyContent: "center",
       alignItems: "center",
-      minWidth: 83,
-      minHeight: 83,
+      minWidth: 90,
+      minHeight: 100,
       flex: 2,
       fontSize: 24,
     },
@@ -85,9 +123,8 @@ export default function App() {
   });
 
   function handleInput(buttonPressed) {
-    console.warn("buttonPressed", buttonPressed);
     if(buttonPressed == "+" || buttonPressed == "-" || buttonPressed == "*" || buttonPressed == "/"){
-      return setCurrentNumber(`${currentNumber}  ${buttonPressed} `);
+      return setCurrentNumber(`${currentNumber} ${buttonPressed} `);
     }
     if(actionsOfDiferentButtons[buttonPressed] != undefined) return actionsOfDiferentButtons[buttonPressed]()
     return setCurrentNumber(currentNumber + buttonPressed)
